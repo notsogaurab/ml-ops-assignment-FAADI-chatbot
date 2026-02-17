@@ -1,0 +1,45 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - COLLECTION_NAME=documents
+      - EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+      - LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct
+      - CHUNK_SIZE=512
+      - CHUNK_OVERLAP=50
+      - CHAT_DB_PATH=/app/chat_data/chat.db
+    volumes:
+      - chat_data:/app/chat_data
+    depends_on:
+      - qdrant
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:
+  chat_data:

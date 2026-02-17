@@ -1,10 +1,11 @@
 import json
+import os
 import uuid
 from datetime import datetime, timezone
 
 import aiosqlite
 
-DB_PATH = "./chat.db"
+DB_PATH = os.getenv("CHAT_DB_PATH", "./chat.db")
 
 
 async def init_db():
