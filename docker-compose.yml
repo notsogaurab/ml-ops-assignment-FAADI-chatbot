@@ -16,13 +16,13 @@ services:
       - chat_data:/app/chat_data
     depends_on:
       - qdrant
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
 
   frontend:
     build: ./frontend
