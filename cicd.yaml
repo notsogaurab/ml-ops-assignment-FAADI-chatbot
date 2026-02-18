@@ -1,0 +1,44 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to project directory (create if doesn't exist)
+            cd ~/ml-ops-assignment-FAADI-chatbot
+            
+            # Pull latest code
+            if [ -d .git ]; then
+              git fetch origin
+              git reset --hard origin/dev
+            else
+              git clone -b dev https://github.com/notsogaurab/ml-ops-assignment-FAADI-chatbot.git .
+            fi
+            
+            # Stop existing containers
+            docker compose down
+            
+            # Build and start services
+            docker compose up --build -d
+            
+            # Clean up unused images
+            docker image prune -f
+            
+            # Show running containers
+            docker compose ps
